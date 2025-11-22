@@ -1,0 +1,32 @@
+import boto3
+
+def query_knowledge_base(kb_id, prompt):
+    bedrock_agent = boto3.client("bedrock-agent-runtime", region_name="us-west-2")
+    response = bedrock_agent.retrieve(
+        knowledgeBaseId=kb_id,
+        retrievalQuery={"text": prompt}
+    )
+    return response["retrievalResults"]
+
+
+
+------------------------------------------------
+generate response
+import boto3
+import json
+
+def generate_response(model_id, prompt, context):
+    bedrock_runtime = boto3.client("bedrock-runtime", region_name="us-west-2")
+    payload = {
+        "prompt": f"Context:\n{context}\n\nQuestion:\n{prompt}",
+        "max_tokens": 300,
+        "temperature": 0.7,
+        "top_p": 0.9
+    }
+    response = bedrock_runtime.invoke_model(
+        modelId=model_id,
+        body=json.dumps(payload),
+        contentType="application/json"
+    )
+    return json.loads(response["body"].read())["completion"]
+
